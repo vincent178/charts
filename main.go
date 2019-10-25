@@ -2,9 +2,12 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"os/exec"
 	"regexp"
 
 	"gopkg.in/yaml.v2"
@@ -23,7 +26,14 @@ type chart struct {
 	AppVersion string `yaml:"appVersion"`
 }
 
+var noPullFlag bool
+var noPushFlag bool
+
 func main() {
+
+	flag.BoolVar(&noPullFlag, "no-pull", true, "do not pull from gcr")
+	flag.BoolVar(&noPushFlag, "no-push", true, "do not push to docker hub")
+
 	valuesdata, err := ioutil.ReadFile("./tekton/values.yaml")
 
 	if err != nil {
@@ -56,11 +66,8 @@ func main() {
 		}
 
 		pushImagePath := fmt.Sprintf("%s/%s-%s:%s", dockerHubAccount, c.Name, segs[1], segs[2])
-		fmt.Println(pushImagePath)
 
-		// cmd := exec.Command("docker", "push", imagePath)
-		// cmd.Stdout = os.Stdout
-		// cmd.Run()
+		pullAndPush(imagePath, pushImagePath)
 	}
 }
 
@@ -82,4 +89,23 @@ func parseImagePath(imagePath string) ([]string, error) {
 }
 
 func pullAndPush(pullImagePath, pushImagePath string) {
+	if noPullFlag == false {
+		run("docker", "pull", pullImagePath)
+	}
+
+	run("docker", "tag", pullImagePath, pushImagePath)
+
+	if noPushFlag == false {
+		run("docker", "push", pushImagePath)
+	}
+}
+
+func run(name string, arg ...string) {
+	cmd := exec.Command(name, arg...)
+
+	cmd.Stdout = os.Stdout
+
+	if err := cmd.Run(); err != nil {
+		log.Println(err)
+	}
 }
