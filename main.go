@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -26,13 +25,7 @@ type chart struct {
 	AppVersion string `yaml:"appVersion"`
 }
 
-var noPullFlag bool
-var noPushFlag bool
-
 func main() {
-
-	flag.BoolVar(&noPullFlag, "no-pull", true, "do not pull from gcr")
-	flag.BoolVar(&noPushFlag, "no-push", true, "do not push to docker hub")
 
 	valuesdata, err := ioutil.ReadFile("./tekton/values.yaml")
 
@@ -89,15 +82,9 @@ func parseImagePath(imagePath string) ([]string, error) {
 }
 
 func pullAndPush(pullImagePath, pushImagePath string) {
-	if noPullFlag == false {
-		run("docker", "pull", pullImagePath)
-	}
-
+	run("docker", "pull", pullImagePath)
 	run("docker", "tag", pullImagePath, pushImagePath)
-
-	if noPushFlag == false {
-		run("docker", "push", pushImagePath)
-	}
+	run("docker", "push", pushImagePath)
 }
 
 func run(name string, arg ...string) {
