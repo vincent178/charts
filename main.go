@@ -9,16 +9,13 @@ import (
 	"os/exec"
 	"regexp"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
+var queue = map[string]string{}
 var dockerHubAccount = "vincent178"
 var imageWithSha = regexp.MustCompile(`^gcr\.io.*\/(.*)@sha256:\w{64}$`)
 var imageWithTag = regexp.MustCompile(`^gcr\.io.*\/(.*):(\w*)$`)
-
-type values struct {
-	Images map[string]string `yaml:"images"`
-}
 
 type chart struct {
 	Name       string `yaml:"name"`
@@ -30,30 +27,61 @@ func main() {
 	valuesdata, err := ioutil.ReadFile("./tekton/values.yaml")
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Sprintf("can't read file %s", "./tekton/values.yaml"))
 	}
 
-	v := values{}
+	chartdata, err := ioutil.ReadFile("./tekton/Chart.yaml")
 
-	err = yaml.Unmarshal(valuesdata, &v)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("can't read file %s", "./tekton/Chart.yaml"))
+	}
+
+	c := &chart{}
+
+	node := &yaml.Node{}
+
+	yaml.Unmarshal(valuesdata, node)
+	yaml.Unmarshal(chartdata, c)
+
+	walkYaml(node, c)
+
+	valuesdata, err = yaml.Marshal(node)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	chartvalue, err := ioutil.ReadFile("./tekton/Chart.yaml")
+	ioutil.WriteFile("./tekton/values.yaml", valuesdata, 0644)
 
-	c := chart{}
+	run("git", "add", ".")
+	run("git", "commit", "-m", "update gcr images to docker hub")
+	run("git", "push", "origin", "master")
+}
 
-	err = yaml.Unmarshal(chartvalue, &c)
+// walkYaml will iterate yaml file and do followings
+// 1. find gcr.io image
+// 2. pull down
+// 3. tag it
+// 4. push to docker hub
+// 5. update yaml
+func walkYaml(node *yaml.Node, c *chart) {
+	for _, n := range node.Content {
+		imagePath := n.Value
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, imagePath := range v.Images {
 		segs, _ := parseImagePath(imagePath)
 
+		if len(segs) == 0 {
+			walkYaml(n, c)
+			continue
+		}
+
+		// this should not happend
+		if len(segs) == 1 {
+			log.Fatal(errors.New("invalid state"))
+		}
+
+		// image is sha256 or latest tag
+		// use helm chart appVersion as tag name
 		if len(segs) == 2 {
 			segs = append(segs, c.AppVersion)
 		}
@@ -61,14 +89,11 @@ func main() {
 		pushImagePath := fmt.Sprintf("%s/%s-%s:%s", dockerHubAccount, c.Name, segs[1], segs[2])
 
 		pullAndPush(imagePath, pushImagePath)
+
+		n.Value = pushImagePath
 	}
 }
 
-func isValidImagePath(imagePath string) bool {
-	return true
-}
-
-// return last segment of path and tag
 func parseImagePath(imagePath string) ([]string, error) {
 	if imageWithSha.MatchString(imagePath) {
 		return imageWithSha.FindStringSubmatch(imagePath), nil
@@ -95,7 +120,4 @@ func run(name string, arg ...string) {
 	if err := cmd.Run(); err != nil {
 		log.Println(err)
 	}
-}
-
-func updateValues() {
 }

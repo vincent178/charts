@@ -5,6 +5,7 @@ jobs:
       - image: vincent178/circlecibase:latest
     working_directory: /go/src/github.com/vincent178/charts
     steps:
+      - add_ssh_keys
       - checkout
       - setup_remote_docker
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
