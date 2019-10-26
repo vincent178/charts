@@ -118,6 +118,6 @@ func run(name string, arg ...string) {
 	cmd.Stdout = os.Stdout
 
 	if err := cmd.Run(); err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 }

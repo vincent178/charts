@@ -8,5 +8,7 @@ jobs:
       - add_ssh_keys
       - checkout
       - setup_remote_docker
+      - run: git config --global user.email "vh7157@gmail.com"
+      - run: git config --global user.name "vincent178"
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run: go run main.go
