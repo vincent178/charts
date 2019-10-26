@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.13
+      - image: vincent178/circlecibase:latest
     working_directory: /go/src/github.com/vincent178/charts
     steps:
       - checkout
@@ -17,9 +17,3 @@ jobs:
             sudo mv /tmp/docker/* /usr/bin
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run: go run main.go
-      - run: echo 'Hello world' > result.txt
-  helm:
-    docker: 
-      - image: alpine/helm:2.14.0
-    steps:
-      - run: ls
