@@ -6,9 +6,7 @@ jobs:
     working_directory: /go/src/github.com/vincent178/charts
     steps:
       - checkout
-
       - setup_remote_docker
-
       - run:
           name: Install Docker client
           command: |
@@ -17,7 +15,11 @@ jobs:
             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
             sudo mv /tmp/docker/* /usr/bin
-
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-
       - run: go run main.go
+      - run: echo 'Hello world' > result.txt
+  helm:
+    docker: 
+      - image: alpine/helm:2.14.0
+    steps:
+      - run: ls

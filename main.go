@@ -96,3 +96,6 @@ func run(name string, arg ...string) {
 		log.Println(err)
 	}
 }
+
+func updateValues() {
+}
