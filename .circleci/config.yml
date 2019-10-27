@@ -2,18 +2,28 @@ version: 2
 jobs:
   build:
     docker:
+      - image: docker
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+      - run: docker build . -t vincent178/circlecibase:latest
+      - run: docker push vincent178/circlecibase:latest
+  update:
+    docker:
       - image: vincent178/circlecibase:latest
     working_directory: /go/src/github.com/vincent178/charts
     steps:
-      - add_ssh_keys
       - checkout
       - setup_remote_docker
+      - add_ssh_keys
       - run: git config --global user.email "vh7157@gmail.com"
       - run: git config --global user.name "vincent178"
       - run: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run: go run main.go
-      # - run: helm package tekton
-      # - run: helm repo index .
-      # - run: git add .
-      # - run: git commit -m 'update gcr images to docker hub'
-      # - run: git push origin master
+
+workflows:
+  build_and_update:
+    jobs:
+      - build
+      - update
