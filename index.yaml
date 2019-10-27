@@ -3,12 +3,12 @@ entries:
   tekton:
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2019-10-27T02:18:40.318939714Z"
+    created: "2019-10-27T02:19:04.528948586Z"
     description: The Tekton Pipelines project provides k8s-style resources for declaring
       CI/CD-style pipelines.
-    digest: 3dc7e88fe5cf1da852a284c1882a0446cc9a26d650f62ffcfe2d482604c3c3b2
+    digest: 8654cbd105f44926537c08232e6ad52ac74af3929cfa0ad2aa4d48c9fd298277
     name: tekton
     urls:
     - tekton-0.1.0.tgz
     version: 0.1.0
-generated: "2019-10-27T02:18:40.318544085Z"
+generated: "2019-10-27T02:19:04.528578064Z"
