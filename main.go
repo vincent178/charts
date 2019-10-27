@@ -57,6 +57,7 @@ func main() {
 	ioutil.WriteFile("./tekton/values.yaml", valuesdata, 0644)
 
 	// always rebuild helm chart
+	run("helm", "init", "-c")
 	run("helm", "package", "tekton")
 	run("helm", "repo", "index", ".")
 
