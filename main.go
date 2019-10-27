@@ -1,13 +1,16 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -53,9 +56,11 @@ func main() {
 
 	ioutil.WriteFile("./tekton/values.yaml", valuesdata, 0644)
 
-	run("git", "add", ".")
-	run("git", "commit", "-m", "update gcr images to docker hub")
-	run("git", "push", "origin", "master")
+	if checkFileChanged() {
+		run("git", "add", ".")
+		run("git", "commit", "-m", "[bot] update images")
+		run("git", "push", "origin", "master")
+	}
 }
 
 // walkYaml will iterate yaml file and do followings
@@ -112,12 +117,23 @@ func pullAndPush(pullImagePath, pushImagePath string) {
 	run("docker", "push", pushImagePath)
 }
 
-func run(name string, arg ...string) {
+func runAndOutput(stdout, stderr io.Writer, name string, arg ...string) {
 	cmd := exec.Command(name, arg...)
 
-	cmd.Stdout = os.Stdout
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
 
 	if err := cmd.Run(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func run(name string, arg ...string) {
+	runAndOutput(os.Stdout, os.Stderr, name, arg...)
+}
+
+func checkFileChanged() bool {
+	b := &bytes.Buffer{}
+	runAndOutput(b, b, "git", "status")
+	return !strings.Contains(b.String(), "nothing to commit, working tree clean")
 }
