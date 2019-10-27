@@ -57,6 +57,8 @@ func main() {
 	ioutil.WriteFile("./tekton/values.yaml", valuesdata, 0644)
 
 	if checkFileChanged() {
+		run("helm", "package", "tekton")
+		run("helm", "repo", "index", ".")
 		run("git", "add", ".")
 		run("git", "commit", "-m", "[bot] update images")
 		run("git", "push", "origin", "master")
