@@ -3,7 +3,7 @@ entries:
   reference-docker-go:
   - apiVersion: v1
     appVersion: "1.0"
-    created: "2019-10-30T08:58:53.161015+08:00"
+    created: "2019-10-30T08:59:54.259381+08:00"
     description: A Helm chart for Kubernetes
     digest: 084e0821c24fb4aa8e4f3a2c4675556a14e9e39d71eca6109563425bb2e45014
     name: reference-docker-go
@@ -13,7 +13,7 @@ entries:
   tekton:
   - apiVersion: v1
     appVersion: 0.8.0
-    created: "2019-10-30T08:58:53.161765+08:00"
+    created: "2019-10-30T08:59:54.259814+08:00"
     description: The Tekton Pipelines project provides k8s-style resources for declaring
       CI/CD-style pipelines.
     digest: 8654cbd105f44926537c08232e6ad52ac74af3929cfa0ad2aa4d48c9fd298277
@@ -21,4 +21,4 @@ entries:
     urls:
     - tekton-0.1.0.tgz
     version: 0.1.0
-generated: "2019-10-30T08:58:53.160471+08:00"
+generated: "2019-10-30T08:59:54.257406+08:00"
