@@ -6,7 +6,7 @@ replicaCount: 1
 
 image: vincent178/reference-app-go
 imagePullPolicy: IfNotPresent
-imagePullSecrets: []
+imagePullSecret: ""
 
 nameOverride: ""
 fullnameOverride: ""

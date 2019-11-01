@@ -16,8 +16,9 @@ spec:
         app.kubernetes.io/name: {{ include "reference-docker-go.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-    {{- with .Values.imagePullSecrets }}
+    {{- if .Values.imagePullSecret }}
       imagePullSecrets:
+        - name: {{ .Values.imagePullSecret }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
       containers:
