@@ -19,7 +19,6 @@ spec:
     {{- if .Values.imagePullSecret }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecret }}
-        {{- toYaml . | nindent 8 }}
     {{- end }}
       containers:
         - name: {{ .Chart.Name }}
